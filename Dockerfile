@@ -1,17 +1,15 @@
 FROM python:3.11-slim
 
-# Set working directory
 WORKDIR /app
 
-# Copy requirements and install
+# Install dependencies first (cached layer)
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the entire application including models and frontend files
+# Copy all project files
 COPY . .
 
-# Expose port
+# Hugging Face Spaces uses port 7860
 EXPOSE 7860
 
-# Run with gunicorn
-CMD ["gunicorn", "-b", "0.0.0.0:7860", "--workers", "1", "--threads", "2", "--timeout", "120", "app:app"]
+CMD ["python", "app.py"]

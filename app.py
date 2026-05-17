@@ -407,7 +407,8 @@ def explain():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    print("[ClassifAI] Server starting at http://localhost:5000")
+    port = int(os.environ.get("PORT", 7860))
+    print(f"[ClassifAI] Server starting at http://localhost:{port}")
     print(f"[ClassifAI] Binary classes: {CLASSES}")
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=False, host='0.0.0.0', port=port)
 
