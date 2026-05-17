@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ClassifAI — Plant Treatment Classifier</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="style.css"/>
+<link rel="stylesheet" href="flowers.css"/>
+</head>
+<body>
+<div id="toast-container"></div>
+
+<div class="app">
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2z"/><path d="M12 8c-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4z" fill="#22c55e"/></svg>
+    </div>
+    <div>
+      <div class="sb-logo-name">ClassifAI</div>
+      <div class="sb-logo-sub">Plant - XAI</div>
+    </div>
+  </div>
+  <nav class="sb-nav">
+    <a class="sb-item active" data-view="classify" id="sb-classify">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </a>
+    <a class="sb-item" data-view="models" id="sb-models">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      Models
+    </a>
+    <a class="sb-item" data-view="history" id="sb-history">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      History
+    </a>
+    <a class="sb-item" data-view="compare" id="sb-compare">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Compare
+    </a>
+    <a class="sb-item" data-view="insights" id="sb-insights">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Insights
+    </a>
+    <a class="sb-item" data-view="reports" id="sb-reports">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Reports
+    </a>
+    <a class="sb-item" id="settings-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Settings
+    </a>
+  </nav>
+  <div class="sb-plant">
+      <div class="flowers">
+    <div class="flower flower--1">
+      <div class="flower__leafs flower__leafs--1">
+        <div class="flower__leaf flower__leaf--1"></div>
+        <div class="flower__leaf flower__leaf--2"></div>
+        <div class="flower__leaf flower__leaf--3"></div>
+        <div class="flower__leaf flower__leaf--4"></div>
+        <div class="flower__white-circle"></div>
+
+        <div class="flower__light flower__light--1"></div>
+        <div class="flower__light flower__light--2"></div>
+        <div class="flower__light flower__light--3"></div>
+        <div class="flower__light flower__light--4"></div>
+        <div class="flower__light flower__light--5"></div>
+        <div class="flower__light flower__light--6"></div>
+        <div class="flower__light flower__light--7"></div>
+        <div class="flower__light flower__light--8"></div>
+
+      </div>
+      <div class="flower__line">
+        <div class="flower__line__leaf flower__line__leaf--1"></div>
+        <div class="flower__line__leaf flower__line__leaf--2"></div>
+        <div class="flower__line__leaf flower__line__leaf--3"></div>
+        <div class="flower__line__leaf flower__line__leaf--4"></div>
+        <div class="flower__line__leaf flower__line__leaf--5"></div>
+        <div class="flower__line__leaf flower__line__leaf--6"></div>
+      </div>
+    </div>
+
+    <div class="flower flower--2">
+      <div class="flower__leafs flower__leafs--2">
+        <div class="flower__leaf flower__leaf--1"></div>
+        <div class="flower__leaf flower__leaf--2"></div>
+        <div class="flower__leaf flower__leaf--3"></div>
+        <div class="flower__leaf flower__leaf--4"></div>
+        <div class="flower__white-circle"></div>
+
+        <div class="flower__light flower__light--1"></div>
+        <div class="flower__light flower__light--2"></div>
+        <div class="flower__light flower__light--3"></div>
+        <div class="flower__light flower__light--4"></div>
+        <div class="flower__light flower__light--5"></div>
+        <div class="flower__light flower__light--6"></div>
+        <div class="flower__light flower__light--7"></div>
+        <div class="flower__light flower__light--8"></div>
+
+      </div>
+      <div class="flower__line">
+        <div class="flower__line__leaf flower__line__leaf--1"></div>
+        <div class="flower__line__leaf flower__line__leaf--2"></div>
+        <div class="flower__line__leaf flower__line__leaf--3"></div>
+        <div class="flower__line__leaf flower__line__leaf--4"></div>
+      </div>
+    </div>
+
+    <div class="flower flower--3">
+      <div class="flower__leafs flower__leafs--3">
+        <div class="flower__leaf flower__leaf--1"></div>
+        <div class="flower__leaf flower__leaf--2"></div>
+        <div class="flower__leaf flower__leaf--3"></div>
+        <div class="flower__leaf flower__leaf--4"></div>
+        <div class="flower__white-circle"></div>
+
+        <div class="flower__light flower__light--1"></div>
+        <div class="flower__light flower__light--2"></div>
+        <div class="flower__light flower__light--3"></div>
+        <div class="flower__light flower__light--4"></div>
+        <div class="flower__light flower__light--5"></div>
+        <div class="flower__light flower__light--6"></div>
+        <div class="flower__light flower__light--7"></div>
+        <div class="flower__light flower__light--8"></div>
+
+      </div>
+      <div class="flower__line">
+        <div class="flower__line__leaf flower__line__leaf--1"></div>
+        <div class="flower__line__leaf flower__line__leaf--2"></div>
+        <div class="flower__line__leaf flower__line__leaf--3"></div>
+        <div class="flower__line__leaf flower__line__leaf--4"></div>
+      </div>
+    </div>
+    <div class="flower flower--4">
+      <div class="flower__leafs flower__leafs--3">
+        <div class="flower__leaf flower__leaf--1"></div>
+        <div class="flower__leaf flower__leaf--2"></div>
+        <div class="flower__leaf flower__leaf--3"></div>
+        <div class="flower__leaf flower__leaf--4"></div>
+        <div class="flower__white-circle"></div>
+
+        <div class="flower__light flower__light--1"></div>
+        <div class="flower__light flower__light--2"></div>
+        <div class="flower__light flower__light--3"></div>
+        <div class="flower__light flower__light--4"></div>
+        <div class="flower__light flower__light--5"></div>
+        <div class="flower__light flower__light--6"></div>
+        <div class="flower__light flower__light--7"></div>
+        <div class="flower__light flower__light--8"></div>
+
+      </div>
+      <div class="flower__line">
+        <div class="flower__line__leaf flower__line__leaf--1"></div>
+        <div class="flower__line__leaf flower__line__leaf--2"></div>
+        <div class="flower__line__leaf flower__line__leaf--3"></div>
+        <div class="flower__line__leaf flower__line__leaf--4"></div>
+      </div>
+    </div>
+
+    <div class="grow-ans" style="--d:1.2s">
+      <div class="flower__g-long">
+        <div class="flower__g-long__top"></div>
+        <div class="flower__g-long__bottom"></div>
+      </div>
+    </div>
+
+    <div class="growing-grass">
+      <div class="flower__grass flower__grass--1">
+        <div class="flower__grass--top"></div>
+        <div class="flower__grass--bottom"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--1"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--2"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--3"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--4"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--5"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--6"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--7"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--8"></div>
+        <div class="flower__grass__overlay"></div>
+      </div>
+    </div>
+
+    <div class="growing-grass">
+      <div class="flower__grass flower__grass--2">
+        <div class="flower__grass--top"></div>
+        <div class="flower__grass--bottom"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--1"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--2"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--3"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--4"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--5"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--6"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--7"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--8"></div>
+        <div class="flower__grass__overlay"></div>
+      </div>
+    </div>
+
+    <div class="grow-ans" style="--d:2.4s">
+      <div class="flower__g-right flower__g-right--1">
+        <div class="leaf"></div>
+      </div>
+    </div>
+
+    <div class="grow-ans" style="--d:2.8s">
+      <div class="flower__g-right flower__g-right--2">
+        <div class="leaf"></div>
+      </div>
+    </div>
+
+    <div class="grow-ans" style="--d:2.8s">
+      <div class="flower__g-front">
+        <div class="flower__g-front__leaf-wrapper flower__g-front__leaf-wrapper--1">
+          <div class="flower__g-front__leaf"></div>
+        </div>
+        <div class="flower__g-front__leaf-wrapper flower__g-front__leaf-wrapper--2">
+          <div class="flower__g-front__leaf"></div>
+        </div>
+        <div class="flower__g-front__leaf-wrapper flower__g-front__leaf-wrapper--3">
+          <div class="flower__g-front__leaf"></div>
+        </div>
+        <div class="flower__g-front__leaf-wrapper flower__g-front__leaf-wrapper--4">
+          <div class="flower__g-front__leaf"></div>
+        </div>
+        <div class="flower__g-front__leaf-wrapper flower__g-front__leaf-wrapper--5">
+          <div class="flower__g-front__leaf"></div>
+        </div>
+        <div class="flower__g-front__leaf-wrapper flower__g-front__leaf-wrapper--6">
+          <div class="flower__g-front__leaf"></div>
+        </div>
+        <div class="flower__g-front__leaf-wrapper flower__g-front__leaf-wrapper--7">
+          <div class="flower__g-front__leaf"></div>
+        </div>
+        <div class="flower__g-front__leaf-wrapper flower__g-front__leaf-wrapper--8">
+          <div class="flower__g-front__leaf"></div>
+        </div>
+        <div class="flower__g-front__line"></div>
+      </div>
+    </div>
+
+    <div class="grow-ans" style="--d:3.2s">
+      <div class="flower__g-fr">
+        <div class="leaf"></div>
+        <div class="flower__g-fr__leaf flower__g-fr__leaf--1"></div>
+        <div class="flower__g-fr__leaf flower__g-fr__leaf--2"></div>
+        <div class="flower__g-fr__leaf flower__g-fr__leaf--3"></div>
+        <div class="flower__g-fr__leaf flower__g-fr__leaf--4"></div>
+        <div class="flower__g-fr__leaf flower__g-fr__leaf--5"></div>
+        <div class="flower__g-fr__leaf flower__g-fr__leaf--6"></div>
+        <div class="flower__g-fr__leaf flower__g-fr__leaf--7"></div>
+        <div class="flower__g-fr__leaf flower__g-fr__leaf--8"></div>
+      </div>
+    </div>
+
+    <div class="long-g long-g--0">
+      <div class="grow-ans" style="--d:3s">
+        <div class="leaf leaf--0"></div>
+      </div>
+      <div class="grow-ans" style="--d:2.2s">
+        <div class="leaf leaf--1"></div>
+      </div>
+      <div class="grow-ans" style="--d:3.4s">
+        <div class="leaf leaf--2"></div>
+      </div>
+      <div class="grow-ans" style="--d:3.6s">
+        <div class="leaf leaf--3"></div>
+      </div>
+    </div>
+
+    <div class="long-g long-g--1">
+      <div class="grow-ans" style="--d:3.6s">
+        <div class="leaf leaf--0"></div>
+      </div>
+      <div class="grow-ans" style="--d:3.8s">
+        <div class="leaf leaf--1"></div>
+      </div>
+      <div class="grow-ans" style="--d:4s">
+        <div class="leaf leaf--2"></div>
+      </div>
+      <div class="grow-ans" style="--d:4.2s">
+        <div class="leaf leaf--3"></div>
+      </div>
+    </div>
+
+    <div class="long-g long-g--2">
+      <div class="grow-ans" style="--d:4s">
+        <div class="leaf leaf--0"></div>
+      </div>
+      <div class="grow-ans" style="--d:4.2s">
+        <div class="leaf leaf--1"></div>
+      </div>
+      <div class="grow-ans" style="--d:4.4s">
+        <div class="leaf leaf--2"></div>
+      </div>
+      <div class="grow-ans" style="--d:4.6s">
+        <div class="leaf leaf--3"></div>
+      </div>
+    </div>
+
+    <div class="long-g long-g--3">
+      <div class="grow-ans" style="--d:4s">
+        <div class="leaf leaf--0"></div>
+      </div>
+      <div class="grow-ans" style="--d:4.2s">
+        <div class="leaf leaf--1"></div>
+      </div>
+      <div class="grow-ans" style="--d:3s">
+        <div class="leaf leaf--2"></div>
+      </div>
+      <div class="grow-ans" style="--d:3.6s">
+        <div class="leaf leaf--3"></div>
+      </div>
+    </div>
+
+    <div class="long-g long-g--4">
+      <div class="grow-ans" style="--d:4s">
+        <div class="leaf leaf--0"></div>
+      </div>
+      <div class="grow-ans" style="--d:4.2s">
+        <div class="leaf leaf--1"></div>
+      </div>
+      <div class="grow-ans" style="--d:3s">
+        <div class="leaf leaf--2"></div>
+      </div>
+      <div class="grow-ans" style="--d:3.6s">
+        <div class="leaf leaf--3"></div>
+      </div>
+    </div>
+
+    <div class="long-g long-g--5">
+      <div class="grow-ans" style="--d:4s">
+        <div class="leaf leaf--0"></div>
+      </div>
+      <div class="grow-ans" style="--d:4.2s">
+        <div class="leaf leaf--1"></div>
+      </div>
+      <div class="grow-ans" style="--d:3s">
+        <div class="leaf leaf--2"></div>
+      </div>
+      <div class="grow-ans" style="--d:3.6s">
+        <div class="leaf leaf--3"></div>
+      </div>
+    </div>
+
+    <div class="long-g long-g--6">
+      <div class="grow-ans" style="--d:4.2s">
+        <div class="leaf leaf--0"></div>
+      </div>
+      <div class="grow-ans" style="--d:4.4s">
+        <div class="leaf leaf--1"></div>
+      </div>
+      <div class="grow-ans" style="--d:4.6s">
+        <div class="leaf leaf--2"></div>
+      </div>
+      <div class="grow-ans" style="--d:4.8s">
+        <div class="leaf leaf--3"></div>
+      </div>
+    </div>
+
+    <div class="long-g long-g--7">
+      <div class="grow-ans" style="--d:3s">
+        <div class="leaf leaf--0"></div>
+      </div>
+      <div class="grow-ans" style="--d:3.2s">
+        <div class="leaf leaf--1"></div>
+      </div>
+      <div class="grow-ans" style="--d:3.5s">
+        <div class="leaf leaf--2"></div>
+      </div>
+      <div class="grow-ans" style="--d:3.6s">
+        <div class="leaf leaf--3"></div>
+      </div>
+    </div>
+  </div>
+  <p class="sb-quote">"Empowering smarter decisions for healthier crops and a better future."</p>
+    <div class="sb-quote-line"></div>
+  </div>
+</aside>
+
+<!-- ── MAIN WRAPPER ── -->
+<div class="main-wrapper">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <nav class="top-tabs">
+      <button class="nav-btn active" data-view="classify">Classify</button>
+      <button class="nav-btn" data-view="compare">Compare</button>
+      <button class="nav-btn" data-view="history">History</button>
+      <button class="nav-btn">Insights</button>
+    </nav>
+    <div class="topbar-right">
+      <div class="server-status" id="server-status">
+        <span class="status-dot offline"></span>
+        <span class="status-label">Connecting…</span>
+      </div>
+      <button class="tb-icon-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </button>
+      <div class="tb-avatar-wrap" style="position:relative; display:flex; align-items:center; gap:8px; cursor:pointer; margin-left:12px; padding:4px; border-radius:30px; transition:all 0.3s ease;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
+        <div style="text-align:right; display:flex; flex-direction:column; margin-right:4px;">
+          <span style="font-size:13px; font-weight:600; color:#fff;">Poorvika BJ</span>
+          <span style="font-size:11px; color:var(--text-muted);">Admin</span>
+        </div>
+        <div class="tb-avatar" style="background: linear-gradient(135deg, #22c55e, #16a34a); color: white; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; letter-spacing: 1px; box-shadow: 0 0 12px rgba(34,197,94,0.3); border: 2px solid rgba(255,255,255,0.1); font-size:14px;">PB</div>
+        <div style="position:absolute; bottom:2px; right:4px; width:10px; height:10px; background:#22c55e; border-radius:50%; border:2px solid var(--bg-top);"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <div class="content-scroll">
+
+  <!-- ── CLASSIFY VIEW ── -->
+  <div class="view classify-view active" id="view-classify">
+    <div class="classify-grid" style="align-items: stretch;">
+
+      <!-- LEFT PANEL -->
+      <div class="left-panel">
+        <div class="lp-section">
+          <div class="lp-header"><span class="lp-title">MODELS</span></div>
+          <div id="model-cards" class="model-list custom-scroll" style="max-height: 400px; overflow-y: auto; padding-right: 5px;"></div>
+        </div>
+        <div class="lp-section lp-details">
+          <div class="lp-header"><span class="lp-title">MODEL DETAILS</span></div>
+          <div class="detail-rows">
+            <div class="dr"><span>Type</span><span id="info-type">-</span></div>
+            <div class="dr"><span>Size</span><span id="info-size">-</span></div>
+            <div class="dr"><span>Input</span><span id="info-input">224 x 224 px</span></div>
+            <div class="dr"><span>Channels</span><span>3 (RGB)</span></div>
+            <div class="dr"><span>Task</span><span id="info-classes">Binary Classification</span></div>
+            <div class="dr"><span>Classes</span><span class="classes-val"><span class="cdot green"></span>Treated <span class="cdot red"></span>Untreated</span></div>
+          </div>
+          <div class="mini-data-cards" style="margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div style="background: var(--bg-panel); padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); text-align: center; transition: all 0.3s ease;" class="hover-lift">
+              <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">Accuracy</div>
+              <div style="font-size: 16px; font-weight: 600; color: #22c55e;" id="data-card-acc">98.5%</div>
+            </div>
+            <div style="background: var(--bg-panel); padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); text-align: center; transition: all 0.3s ease;" class="hover-lift">
+              <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">Version</div>
+              <div style="font-size: 16px; font-weight: 600; color: #60a5fa;" id="data-card-ver">v2.1.0</div>
+            </div>
+          </div>
+          <div style="display:none"><span id="info-params"></span><span id="info-neurons"></span></div>
+        </div>
+        
+        <div class="live-scan-card hover-lift" style="margin-top:20px; background:var(--bg-card); border-radius:var(--radius-lg); border:1px solid var(--border-light); padding:20px; position:relative; overflow:hidden; transition: all 0.3s ease;">
+          <div class="lp-title" style="margin-bottom:12px; text-align:center;">AI SCANNER</div>
+          <div class="scan-anim-box" style="width:100%; height:140px; background:var(--bg-panel); border-radius:var(--radius-sm); position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; border: 1px dashed var(--border-light);">
+             <img src="robot_scanner.png" alt="3D Robot Scanner" style="width:100%; height:100%; object-fit:cover; animation: pulse-anim 2s infinite alternate;" />
+             <div class="scan-line" style="position:absolute; top:0; left:0; width:100%; height:2px; background:linear-gradient(90deg, transparent, #22c55e, transparent); animation:scan-drop 2s linear infinite; box-shadow:0 0 12px #22c55e;"></div>
+          </div>
+          <style>
+             @keyframes scan-drop { 0% { top:-10px; } 100% { top:150px; } }
+             @keyframes robot-float { 0% { transform: translateY(0px); } 50% { transform: translateY(-8px); } 100% { transform: translateY(0px); } }
+          </style>
+        </div>
+      </div>
+
+      <!-- CENTER PANEL -->
+      <div class="center-panel">
+
+        <!-- Upload card -->
+        <div class="upload-card">
+          <div class="uc-label">UPLOADED IMAGE</div>
+          <div class="uc-body">
+            <!-- Image preview col -->
+            <div class="uc-preview-col" id="preview-section" style="display:none; flex-direction:column; align-items:center; width:100%;">
+              <div class="uc-img-wrap" style="position:relative; width:100%; border-radius:12px; overflow:hidden; margin-bottom:16px; border:1px solid var(--border-light); box-shadow:0 8px 24px rgba(0,0,0,0.3);">
+                <img id="preview-img" alt="preview" class="uc-img" style="width:100%; max-height:280px; object-fit:cover; display:block;" />
+                <button class="clear-btn hover-lift" id="clear-btn" style="position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.6); color:#fff; border:1px solid rgba(255,255,255,0.2); border-radius:50%; width:32px; height:32px; cursor:pointer; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px);">✕</button>
+              </div>
+              <div class="uc-img-meta" style="background:var(--bg-panel); border:1px solid var(--border-light); border-radius:8px; padding:16px; width:100%; text-align:left; margin-bottom:20px;">
+                <div style="font-weight:600; color:#fff; font-size:15px; margin-bottom:8px; word-break:break-all; display:flex; align-items:center; gap:8px;">
+                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+                   <span id="uc-filename">leaf_001.jpg</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; color:var(--text-muted); border-top:1px solid rgba(255,255,255,0.05); padding-top:8px;">
+                  <span id="uc-dims">224 x 224 px</span>
+                  <span id="uc-time"></span>
+                </div>
+              </div>
+              <button class="classify-img-btn hover-lift" id="classify-btn" style="width: 100%; padding:14px; font-size:15px; letter-spacing:0.5px; box-shadow:0 4px 15px rgba(34,197,94,0.3);">
+                <span class="btn-text">Classify Image</span>
+                <div class="btn-loader" style="display:none"></div>
+              </button>
+            </div>
+            <!-- Drop zone -->
+            <div class="uc-drop-col hover-lift" id="upload-zone" style="border: 2px dashed var(--border-light); background: var(--bg-card); border-radius: var(--radius-lg); padding: 40px 20px; text-align: center; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; margin-bottom: 20px; cursor: pointer; width: 100%;" onclick="document.getElementById('file-input').click()">
+              <div style="width:60px; height:60px; border-radius:50%; background:rgba(34,197,94,0.1); display:flex; align-items:center; justify-content:center; box-shadow: 0 0 20px rgba(34,197,94,0.15);">
+                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              </div>
+              <div style="pointer-events: none;">
+                <p style="color:#fff; font-size:16px; font-weight:600; margin:0 0 6px 0;">Drag &amp; drop an image here</p>
+                <p style="color:var(--text-muted);font-size:14px; margin:0;">or <span style="color:#22c55e;font-weight:600;">browse files</span></p>
+              </div>
+              <input type="file" id="file-input" accept="image/*" hidden/>
+              <p style="color:var(--text-muted);font-size:12px; margin:0; opacity:0.7; pointer-events:none;">Supports JPG, PNG &bull; Max size 10MB</p>
+            </div>
+          </div>
+          <div class="uc-browse-row" style="display:flex; justify-content:center; gap:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.05); margin-top:8px;">
+            <button class="ghost-sm" id="camera-btn" style="display:flex; align-items:center; gap:8px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Use Camera</button>
+            <button class="ghost-sm" id="export-btn" style="display:none">↓ Export</button>
+          </div>
+        </div>
+
+        <!-- Prediction Result -->
+        <div class="pred-card" id="results-section" style="display:none">
+          <div class="pred-inner">
+            <div class="pred-icon-col">
+              <div class="leaf-circle" id="verdict-box">
+                <span id="verdict-icon">?</span>
+              </div>
+            </div>
+            <div class="pred-text-col">
+              <div class="pred-result-lbl">PREDICTION RESULT</div>
+              <div class="pred-verdict-text" id="verdict-label">-</div>
+              <div class="pred-conf-text" id="verdict-conf">-</div>
+              <div class="pred-desc-text" id="pred-desc">Analysis complete.</div>
+              <button class="explain-pill" id="explain-btn">
+                <span class="explain-btn-text">Explain Prediction</span>
+                <div class="btn-loader" style="display:none"></div>
+                <span class="arrow-right">›</span>
+              </button>
+            </div>
+          </div>
+          <div class="pred-actions">
+            <button class="pred-action-btn" id="dl-report-btn">↓ Download Report</button>
+            <button class="pred-action-btn">⤢ Share Result</button>
+            <button class="pred-action-btn" id="new-prediction-btn">↺ New Prediction</button>
+          </div>
+
+          <!-- Probabilities inside result card -->
+          <div class="probs-wrap">
+            <div class="probs-top">
+              <span class="lp-title">PREDICTION PROBABILITIES</span>
+              <div class="metrics-chips">
+                <span class="mchip" id="res-inf-ms">-</span>
+                <span class="mchip" id="res-total-ms" style="display:none">-</span>
+                <span class="mchip" id="res-neurons" style="display:none">-</span>
+              </div>
+            </div>
+            <div id="predictions-list"></div>
+            <div class="probs-footer-row" id="probs-footer"></div>
+          </div>
+          <canvas id="results-chart" style="display:none"></canvas>
+        </div>
+
+        <!-- XAI moved -->
+
+      </div>
+
+      <!-- RIGHT PANEL -->
+      <div class="right-panel">
+        <div class="conf-card">
+          <div class="rp-header"><span class="lp-title">CONFIDENCE SCORE</span><span class="rp-icon-row">ⓘ</span></div>
+          <div class="gauge-wrap">
+            <svg class="gauge-svg" viewBox="0 0 200 120">
+              <defs>
+                <linearGradient id="gg" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" style="stop-color:#16a34a"/>
+                  <stop offset="100%" style="stop-color:#4ade80"/>
+                </linearGradient>
+              </defs>
+              <path class="gauge-bg-path" d="M20 100 A80 80 0 0 1 180 100"/>
+              <path class="gauge-fill" id="gauge-fill" d="M20 100 A80 80 0 0 1 180 100" stroke-dasharray="0 251.2"/>
+              <text class="gauge-num" id="gauge-pct" x="100" y="92" text-anchor="middle">0%</text>
+              <text class="gauge-sub" x="100" y="110" text-anchor="middle">Confidence</text>
+            </svg>
+          </div>
+          <div class="conf-verdict-badge" id="top-class">-</div>
+          <div class="conf-scale"><span>0%</span><div class="conf-scale-bar"></div><span>100%</span></div>
+        </div>
+
+        <div class="trend-card">
+          <div class="rp-header"><span class="lp-title">Confidence Trend (Last 7)</span></div>
+          <div class="chart-wrapper" style="position:relative;height:70px;width:100%">
+            <canvas id="trend-chart"></canvas>
+          </div>
+        </div>
+
+        <div class="recent-card">
+          <div class="rp-header"><span class="lp-title">RECENT RUNS</span><button class="see-all-btn" data-view="history">View All</button></div>
+          <div id="history-mini-list"><p class="empty-h">No predictions yet</p></div>
+        </div>
+
+        <div class="tips-card-rp">
+          <div class="lp-title" style="margin-bottom:10px">TIPS</div>
+          <div class="tip-item"><span class="tip-ico green-ico">✦</span>Use close-up, well-lit leaf images</div>
+          <div class="tip-item"><span class="tip-ico blue-ico">✦</span>Click Explain to understand the model decision</div>
+          <div class="tip-item"><span class="tip-ico red-ico">✦</span>Red zones = model's focus area</div>
+          <div class="tip-item"><span class="tip-ico amber-ico">✦</span>Use Compare for model insights</div>
+        </div>
+      </div>
+
+      <!-- XAI -->
+      <div class="xai-card" id="xai-section" style="display:none; grid-column: 1 / -1; flex-direction:column; min-height: 250px; width: 100%;">
+        <div class="xai-hdr">
+          <div class="xai-hdr-left"><span class="xai-ico"></span><span class="lp-title">EXPLAINABLE AI - GRAD-CAM</span></div>
+          <button class="explain-pill" id="explain-btn2" style="display:none"></button>
+        </div>
+        
+        <div id="xai-empty" style="text-align:center; padding: 30px; color: var(--text-muted); flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+           <p style="margin-bottom: 16px;">See exactly which parts of the leaf influenced the model's decision.</p>
+           <button class="classify-img-btn hover-lift" id="xai-generate-btn" style="margin: 0 auto;">
+             <span class="btn-text">Generate AI Explanation</span>
+             <div class="btn-loader" style="display:none"></div>
+           </button>
+        </div>
+
+        <div id="xai-body" style="display:none">
+          <div class="xai-imgs" style="display:flex; justify-content:center; gap:20px;">
+            <div class="xai-ib" style="flex:1; max-width:400px;"><p class="xai-il">Original</p><img id="xai-original" class="xai-img" alt="" style="width:100%; object-fit:cover; border-radius:8px;"/></div>
+            <div class="xai-ib" style="position:relative; flex:1; max-width:400px;">
+              <p class="xai-il">Grad-CAM</p>
+              <img id="xai-heatmap" class="xai-img" alt="" style="width:100%; object-fit:cover; border-radius:8px;"/>
+              <div class="heatmap-legend" id="heatmap-legend">
+                <span>Ignored (Blue)</span>
+                <div class="legend-gradient"></div>
+                <span>High Impact (Red)</span>
+              </div>
+            </div>
+          </div>
+          <div id="region-grid" class="region-grid"></div>
+          <div id="xai-explanation" class="xai-exp"></div>
+          <div id="xai-criteria" class="xai-crit"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Feature cards -->
+    <div class="feature-row">
+      <div class="feat-card" id="fc-xai">
+        <div class="fc-icon-wrap green-fc"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/><path d="M12 8v4l3 3"/></svg></div>
+        <div class="fc-body"><div class="fc-title">Explainable AI</div><div class="fc-desc">See which parts of the leaf influenced the prediction.</div></div>
+        <button class="fc-arrow">→</button>
+      </div>
+      <div class="feat-card" id="fc-compare">
+        <div class="fc-icon-wrap blue-fc"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+        <div class="fc-body"><div class="fc-title">Model Comparison</div><div class="fc-desc">Compare performance across multiple models.</div></div>
+        <button class="fc-arrow">→</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── COMPARE VIEW ── -->
+  <div class="view" id="view-compare" style="display:none;flex-direction:column;padding:20px;gap:16px">
+    <h2 class="page-title">Model Comparison</h2>
+    <div class="compare-body">
+      <div class="compare-upload-col">
+        <div class="upload-zone compact hover-lift" id="compare-upload-zone" style="border: 2px dashed var(--border-light); background: var(--bg-card); border-radius: var(--radius-lg); padding: 40px 20px; text-align: center; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; margin-bottom: 20px; cursor: pointer;">
+          <div style="width:60px; height:60px; border-radius:50%; background:rgba(34,197,94,0.1); display:flex; align-items:center; justify-content:center; box-shadow: 0 0 20px rgba(34,197,94,0.15);">
+             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </div>
+          <div>
+            <p style="color:#fff; font-size:16px; font-weight:600; margin:0 0 4px 0;">Drop leaf image here</p>
+            <p style="color:var(--text-muted);font-size:13px; margin:0;">or <label for="compare-file-input" style="color:#22c55e;cursor:pointer;font-weight:600;text-decoration:none;">browse files</label> to compare</p>
+          </div>
+          <input type="file" id="compare-file-input" accept="image/*" hidden/>
+        </div>
+        <img id="compare-preview" style="display:none;width:100%;border-radius:10px;max-height:180px;object-fit:cover;margin-bottom:20px;box-shadow:0 10px 30px rgba(0,0,0,0.5);" alt=""/>
+        <div id="compare-model-select"></div>
+        <button class="classify-img-btn hover-lift" id="run-compare-btn" disabled style="width:100%;justify-content:center;margin-top:16px;padding:14px;font-size:15px;font-weight:600;letter-spacing:0.5px;box-shadow:0 4px 15px rgba(34,197,94,0.3);">Run Comparison</button>
+      </div>
+      <div id="compare-results-col" style="flex:1;display:flex;flex-direction:column;gap:12px">
+        <div class="empty-state-card" style="height:100%;display:flex;align-items:center;justify-content:center;background:var(--bg-card);border:1px dashed var(--border-light);border-radius:var(--radius-lg);"><p style="color:var(--text-muted);font-weight:500;">Upload an image and click Run Comparison</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── HISTORY VIEW ── -->
+  <div class="view" id="view-history" style="display:none;flex-direction:column;padding:20px;gap:16px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <h2 class="page-title">Prediction History</h2>
+      <button class="ghost-sm" id="clear-history-btn">Clear All</button>
+    </div>
+    <div id="history-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px">
+      <p class="empty-h">No history yet.</p>
+    </div>
+  </div>
+
+  <div class="view" id="view-models" style="display:none;padding:20px;flex-direction:column;gap:20px;">
+    <h2 class="page-title">Models Repository</h2>
+    <div id="full-models-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px">
+      <!-- Injected by JS -->
+    </div>
+  </div>
+  <div class="view" id="view-insights" style="display:none;padding:20px;flex-direction:column;gap:20px;">
+    <h2 class="page-title">Global Insights</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;">
+       <div class="stat-card hover-lift" style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:20px;transition:all 0.3s ease;">
+          <div style="font-size:12px;color:var(--text-muted)">Total Scans</div>
+          <div style="font-size:28px;font-weight:700;color:#22c55e" id="ins-total">0</div>
+       </div>
+       <div class="stat-card hover-lift" style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:20px;transition:all 0.3s ease;">
+          <div style="font-size:12px;color:var(--text-muted)">Most Detected</div>
+          <div style="font-size:28px;font-weight:700;color:#ef4444" id="ins-most">-</div>
+       </div>
+       <div class="stat-card hover-lift" style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:20px;transition:all 0.3s ease;">
+          <div style="font-size:12px;color:var(--text-muted)">Avg Confidence</div>
+          <div style="font-size:28px;font-weight:700;color:#60a5fa" id="ins-avg">0%</div>
+       </div>
+    </div>
+    <div style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:20px;">
+       <h3 style="margin-bottom:16px;font-size:14px;color:var(--text-muted);">Confidence Trend (All Models)</h3>
+       <div style="position: relative; height: 250px; width: 100%;">
+         <canvas id="insights-chart"></canvas>
+       </div>
+    </div>
+  </div>
+  <div class="view" id="view-reports" style="display:none;padding:20px;flex-direction:column;gap:20px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+       <h2 class="page-title">How Models Work</h2>
+       <button class="ghost-sm hover-lift" onclick="downloadReport()" style="transition:all 0.3s ease;">↓ Download Report CSV</button>
+    </div>
+    <div class="reports-timeline" style="display:flex;flex-direction:column;gap:20px;position:relative;">
+       <div class="timeline-line" style="position:absolute;left:24px;top:20px;bottom:20px;width:2px;background:var(--border-light);z-index:0;"></div>
+       
+       <div class="tl-item hover-lift" style="display:flex;gap:20px;position:relative;z-index:1;transition:all 0.3s ease;">
+         <div class="tl-icon" style="width:50px;height:50px;border-radius:50%;background:#010113;border:2px solid #22c55e;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">📷</div>
+         <div style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:var(--radius-md);padding:20px;flex:1;">
+           <h3 style="margin-bottom:8px">1. Image Input</h3>
+           <p style="color:var(--text-muted);font-size:13px;line-height:1.6;">The system receives a high-resolution image of the plant leaf. The image is validated for supported formats (JPG, PNG) and size constraints.</p>
+         </div>
+       </div>
+
+       <div class="tl-item hover-lift" style="display:flex;gap:20px;position:relative;z-index:1;transition:all 0.3s ease;">
+         <div class="tl-icon" style="width:50px;height:50px;border-radius:50%;background:#010113;border:2px solid #60a5fa;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">⚙️</div>
+         <div style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:var(--radius-md);padding:20px;flex:1;">
+           <h3 style="margin-bottom:8px">2. Preprocessing</h3>
+           <p style="color:var(--text-muted);font-size:13px;line-height:1.6;">The image is resized to match the model's expected input dimensions (e.g., 224x224 px), normalized, and converted into a multi-dimensional tensor.</p>
+         </div>
+       </div>
+
+       <div class="tl-item hover-lift" style="display:flex;gap:20px;position:relative;z-index:1;transition:all 0.3s ease;">
+         <div class="tl-icon" style="width:50px;height:50px;border-radius:50%;background:#010113;border:2px solid #a78bfa;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🧠</div>
+         <div style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:var(--radius-md);padding:20px;flex:1;">
+           <h3 style="margin-bottom:8px">3. Feature Extraction</h3>
+           <p style="color:var(--text-muted);font-size:13px;line-height:1.6;">Deep neural network layers apply convolutional filters to identify edges, textures, and specific disease patterns within the leaf structure.</p>
+         </div>
+       </div>
+
+       <div class="tl-item hover-lift" style="display:flex;gap:20px;position:relative;z-index:1;transition:all 0.3s ease;">
+         <div class="tl-icon" style="width:50px;height:50px;border-radius:50%;background:#010113;border:2px solid #fbbf24;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">📊</div>
+         <div style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:var(--radius-md);padding:20px;flex:1;">
+           <h3 style="margin-bottom:8px">4. Prediction Output</h3>
+           <p style="color:var(--text-muted);font-size:13px;line-height:1.6;">The final dense layer calculates probabilities. The system generates a confidence score and a visual Grad-CAM heatmap highlighting critical areas.</p>
+         </div>
+       </div>
+    </div>
+  </div>
+
+  </div><!-- end content-scroll -->
+</div><!-- end main-wrapper -->
+</div><!-- end app -->
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settings-modal" style="display:none; backdrop-filter: blur(8px);">
+  <div class="modal-card" style="width: 480px; max-width: 90vw; background: var(--bg-panel); border: 1px solid var(--border-light); border-radius: var(--radius-lg); overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+    <div class="modal-hdr" style="background: rgba(0,0,0,0.2); padding: 20px 24px; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center;">
+      <h3 style="margin: 0; font-size: 18px; display: flex; align-items: center; gap: 10px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        Preferences
+      </h3>
+      <button class="icon-btn-sm" id="close-settings" style="width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.1); border: none; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;">✕</button>
+    </div>
+    <div class="modal-body" style="padding: 24px; display: flex; flex-direction: column; gap: 24px; max-height: 70vh; overflow-y: auto;">
+      
+      <!-- API Server -->
+      <div class="set-sec" style="display: flex; flex-direction: column; gap: 8px;">
+        <h4 style="margin: 0; font-size: 14px; color: #fff;">API Connection</h4>
+        <p style="margin: 0; font-size: 12px; color: var(--text-muted);">Set the backend URL to process images.</p>
+        <div style="display: flex; gap: 10px; margin-top: 4px;">
+          <input id="api-url-input" class="set-input" value="http://localhost:5000" style="flex: 1; padding: 10px 14px; border-radius: 6px; border: 1px solid var(--border-light); background: rgba(0,0,0,0.2); color: #fff; font-family: inherit; font-size: 14px;" />
+          <button class="classify-img-btn" id="save-api-btn" style="padding: 10px 16px; border-radius: 6px; font-size: 14px; white-space: nowrap;">Connect</button>
+        </div>
+      </div>
+
+      <div style="height: 1px; background: var(--border-light); width: 100%;"></div>
+
+      <!-- Default Model -->
+      <div class="set-sec" style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h4 style="margin: 0; font-size: 14px; color: #fff;">Default AI Model</h4>
+          <p style="margin: 4px 0 0 0; font-size: 12px; color: var(--text-muted);">Automatically selected on startup.</p>
+        </div>
+        <select id="set-default-model" style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-light); color: #fff; padding: 8px 12px; border-radius: 6px; outline: none; cursor: pointer;">
+          <option value="A">Advanced Custom CNN</option>
+          <option value="M">MobileNetV2</option>
+          <option value="R">ResNet50V2</option>
+        </select>
+      </div>
+
+      <!-- Confidence Threshold -->
+      <div class="set-sec" style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="display: flex; justify-content: space-between;">
+          <h4 style="margin: 0; font-size: 14px; color: #fff;">Confidence Threshold</h4>
+          <span id="set-conf-label" style="font-size: 14px; font-weight: bold; color: #22c55e;">85%</span>
+        </div>
+        <p style="margin: 0; font-size: 12px; color: var(--text-muted);">Ignore predictions below this confidence level.</p>
+        <input type="range" id="set-conf-thresh" min="50" max="100" value="85" style="margin-top: 8px; width: 100%; accent-color: #22c55e; cursor: pointer;">
+      </div>
+
+      <!-- UI Animations -->
+      <div class="set-sec" style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h4 style="margin: 0; font-size: 14px; color: #fff;">UI Animations</h4>
+          <p style="margin: 4px 0 0 0; font-size: 12px; color: var(--text-muted);">Enable 3D scanners and glassmorphism.</p>
+        </div>
+        <label style="position: relative; display: inline-block; width: 44px; height: 24px;">
+          <input type="checkbox" id="set-ui-anim" checked style="opacity: 0; width: 0; height: 0;">
+          <span id="ui-anim-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #22c55e; border-radius: 24px; transition: .4s;">
+            <span id="ui-anim-knob" style="position: absolute; content: ''; height: 18px; width: 18px; left: 22px; bottom: 3px; background-color: white; border-radius: 50%; transition: .4s;"></span>
+          </span>
+        </label>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- CAMERA MODAL -->
+<div class="modal-overlay" id="camera-modal" style="display:none">
+  <div class="modal-card">
+    <div class="modal-hdr"><h3>Capture Image</h3><button class="icon-btn-sm" id="close-camera">✕</button></div>
+    <div class="modal-body" style="align-items:center;gap:12px">
+      <video id="camera-video" autoplay playsinline style="width:100%;border-radius:10px"></video>
+      <button class="classify-img-btn" id="snap-btn">Snap</button>
+      <canvas id="camera-canvas" style="display:none"></canvas>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
+
+
