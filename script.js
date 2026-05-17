@@ -1,4 +1,4 @@
-let API = localStorage.getItem('classifai_api') || 'http://localhost:5000';
+let API = localStorage.getItem('classifai_api') || '';
 let selectedModel = 'MobileNetV2';
 let currentFile = null;
 let currentResults = null;
